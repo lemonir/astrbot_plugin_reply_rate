@@ -1,0 +1,6 @@
+name: astrbot_plugin_reply_rate
+display_name: 分群回复频率
+desc: 给每个群单独设定主动接话的概率，命中才让 AI 参与聊天，没配的群用默认值。
+version: v1.0.0
+author: 大肥鱼
+astrbot_version: ">=4.10.0"
