@@ -1,0 +1,89 @@
+{
+  "enable": {
+    "description": "启用分群回复频率",
+    "type": "bool",
+    "default": true,
+    "hint": "总开关。关掉之后这个插件什么都不做，群里只有被 @ 或者发 / 才会回你。"
+  },
+  "default_probability": {
+    "description": "默认接话概率（0~1）",
+    "type": "float",
+    "default": 0.03,
+    "slider": {
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    "hint": "群里没人叫我时，每来一条消息，我有多大机会自己插一句。0.03 大约是一百句里插三句；0.1 就是十句里插一句；填 0 表示这个群我完全不主动开口。嫌吵就调小，想热闹就调大。"
+  },
+  "group_probabilities": {
+    "description": "按群单独设置概率",
+    "type": "list",
+    "default": [],
+    "items": {
+      "type": "string"
+    },
+    "hint": "想给某个群单独定频率就写在这里，优先级高于上面的默认值。每行一条，格式「群号:概率」，例如 464173145:0.1 表示这个群 10% 概率接话，475487437:0 表示这个群我永远不主动插嘴。不知道群号可以在群里发 /sid 查。"
+  },
+  "min_interval_seconds": {
+    "description": "两次插话的最小间隔（秒）",
+    "type": "int",
+    "default": 30,
+    "slider": {
+      "min": 0,
+      "max": 600,
+      "step": 5
+    },
+    "hint": "插完一句之后，至少安静这么多秒才允许再抽一次签，防止连着刷屏。30 就是半分钟。被 @ 之后的窗口内连聊不受这条限制。"
+  },
+  "at_window_seconds": {
+    "description": "被@后的唤醒窗口（秒）",
+    "type": "int",
+    "default": 15,
+    "slider": {
+      "min": 0,
+      "max": 300,
+      "step": 5
+    },
+    "hint": "你 @ 我或者发 / 唤醒我之后，这么多秒内你接着说的话题我都直接接，不用抽签。15 就是十五秒；填 0 等于取消这个窗口，每次都要重新抽。"
+  },
+  "window_min_interval_seconds": {
+    "description": "唤醒窗口内的最小间隔（秒）",
+    "type": "int",
+    "default": 5,
+    "slider": {
+      "min": 0,
+      "max": 120,
+      "step": 1
+    },
+    "hint": "被 @ 之后的窗口里，我也不是每句都抢着答，至少间隔这么多秒才答一次，免得同一秒里挤进好几条消息时我连发。5 就是五秒；填 0 表示窗口内每句都接。"
+  },
+  "combo_limit": {
+    "description": "最多连续接几句（连击上限）",
+    "type": "int",
+    "default": 7,
+    "slider": {
+      "min": 0,
+      "max": 30,
+      "step": 1
+    },
+    "hint": "连着接够这么多句就强制闭嘴，避免两个人你来我往停不下来。7 就是聊到第七句先停，清掉唤醒窗口、回到抽签状态。填 0 表示不限制。"
+  },
+  "combo_reset_seconds": {
+    "description": "连击清零时间（秒）",
+    "type": "int",
+    "default": 120,
+    "slider": {
+      "min": 10,
+      "max": 1800,
+      "step": 10
+    },
+    "hint": "超过这么久没接过话，连击数就自动归零，下次从头数。120 就是两分钟，不会跨天一直累加。"
+  },
+  "only_when_chat": {
+    "description": "只对纯文字消息抽签",
+    "type": "bool",
+    "default": false,
+    "hint": "打开后只有纯文字消息参与抽签，图片、表情包、语音这些不抽。想让群里斗图时我别乱插嘴就开它。"
+  }
+}
