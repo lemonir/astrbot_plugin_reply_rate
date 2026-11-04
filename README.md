@@ -1,0 +1,2 @@
+# astrbot_plugin_reply_rate
+分群管理主动回复频率
