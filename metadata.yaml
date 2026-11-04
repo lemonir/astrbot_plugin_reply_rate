@@ -1,6 +1,16 @@
 name: astrbot_plugin_reply_rate
 display_name: 分群回复频率
-desc: 给每个群单独设定主动接话的概率，命中才让 AI 参与聊天，没配的群用默认值。
+desc: 给每个群单独设定主动接话的概率，唤醒窗口 + 概率抽签 + 连击上限，命中才让 AI 参与聊天。
 version: v1.0.0
 author: 大肥鱼
+author_url: https://github.com/lemonir
+repo: https://github.com/lemonir/astrbot_plugin_reply_rate
+support_platforms:
+  - aiocqhttp
 astrbot_version: ">=4.10.0"
+category: 工具
+tags:
+  - 群聊管理
+  - 回复频率
+  - 概率回复
+  - 唤醒窗口
