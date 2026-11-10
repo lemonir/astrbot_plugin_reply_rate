@@ -5,6 +5,12 @@
     "default": true,
     "hint": "总开关。关掉之后这个插件什么都不做，群里只有被 @ 或者发 / 才会回你。"
   },
+  "reply_bare_mention": {
+    "description": "纯 @ 也回应一声",
+    "type": "bool",
+    "default": true,
+    "hint": "有人只 @ 你、一个字都没写的时候，系统默认不会开口（消息内容为空）。打开这一项，我会自己应一声，不会让你觉得被无视。关掉就只有 @ 时带话了才回。"
+  },
   "default_probability": {
     "description": "默认接话概率（0~1）",
     "type": "float",
