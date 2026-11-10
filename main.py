@@ -74,6 +74,20 @@ class ReplyRatePlugin(Star):
         except (TypeError, ValueError):
             return 15.0
 
+    @staticmethod
+    def _is_bare_mention(event: AstrMessageEvent) -> bool:
+        """消息里除了 @ 机器人，没有任何实际内容。"""
+        messages = event.get_messages() or []
+        if not messages:
+            return True
+        for comp in messages:
+            if isinstance(comp, Comp.At):
+                continue
+            if isinstance(comp, Comp.Plain) and not str(comp.text or "").strip():
+                continue
+            return False
+        return True
+
     def _window_min_interval(self) -> float:
         try:
             return max(0.0, float(self.config.get("window_min_interval_seconds", 5)))
@@ -133,10 +147,17 @@ class ReplyRatePlugin(Star):
         if not group_id:
             return
 
-        # 被 @ 或被唤醒：只记起点，回复交给框架
+        # 被 @ 或被唤醒：记下窗口起点，正常回复交给框架
         if event.is_at_or_wake_command:
             if not self._muted(group_id):
                 self._last_at[group_id] = (time.time(), sender_id)
+            # 纯 @ 一个字都没带时，框架那边内容为空、不会开口，
+            # 这里补一句，免得像是没收到。
+            if self.config.get("reply_bare_mention", True) and self._is_bare_mention(event):
+                logger.info(f"[reply_rate] 群 {group_id} 收到纯 @，主动应一声")
+                yield event.request_llm(
+                    prompt="（对方只 @ 了你，没写别的内容，用你自己的语气随口应一声，很短）"
+                )
             return
 
         text = (event.message_str or "").strip()
