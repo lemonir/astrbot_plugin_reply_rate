@@ -74,6 +74,27 @@ class ReplyRatePlugin(Star):
         except (TypeError, ValueError):
             return 15.0
 
+    async def _current_conversation(self, event: AstrMessageEvent):
+        """拿到当前会话对象。
+
+        必须传给 request_llm：AstrBot 只在 req.conversation 存在时才注入人格，
+        不带它的话发出的回复会完全没有角色口吻。
+        """
+        umo = event.unified_msg_origin
+        manager = getattr(self.context, "conversation_manager", None)
+        if manager is None:
+            return None
+        try:
+            cid = await manager.get_curr_conversation_id(umo)
+            if not cid:
+                cid = await manager.new_conversation(
+                    umo, platform_id=event.get_platform_id()
+                )
+            return await manager.get_conversation(umo, cid)
+        except Exception:
+            logger.warning("[reply_rate] 获取会话失败，本条回复可能不带人格", exc_info=True)
+            return None
+
     @staticmethod
     def _is_bare_mention(event: AstrMessageEvent) -> bool:
         """消息里除了 @ 机器人，没有任何实际内容。"""
@@ -155,8 +176,10 @@ class ReplyRatePlugin(Star):
             # 这里补一句，免得像是没收到。
             if self.config.get("reply_bare_mention", True) and self._is_bare_mention(event):
                 logger.info(f"[reply_rate] 群 {group_id} 收到纯 @，主动应一声")
+                conv = await self._current_conversation(event)
                 yield event.request_llm(
-                    prompt="（对方只 @ 了你，没写别的内容，用你自己的语气随口应一声，很短）"
+                    prompt="（对方只 @ 了你，没写别的内容，用你自己的语气随口应一声，很短）",
+                    conversation=conv,
                 )
             return
 
@@ -180,7 +203,8 @@ class ReplyRatePlugin(Star):
             )
             self._last_reply_at[group_id] = now
             self._bump_combo(group_id, now)
-            yield event.request_llm(prompt=text)
+            conv = await self._current_conversation(event)
+            yield event.request_llm(prompt=text, conversation=conv)
             return
 
         if self.config.get("only_when_chat", False):
@@ -201,7 +225,8 @@ class ReplyRatePlugin(Star):
         logger.info(
             f"[reply_rate] 群 {group_id} 命中接话概率 {probability:.2%}，交给 AI 处理"
         )
-        yield event.request_llm(prompt=text)
+        conv = await self._current_conversation(event)
+        yield event.request_llm(prompt=text, conversation=conv)
 
     @filter.after_message_sent()
     async def on_bot_message_sent(self, event: AstrMessageEvent):
